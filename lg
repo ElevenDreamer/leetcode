@@ -1,0 +1,58 @@
+#!/usr/bin/expect -f
+
+array set arr {
+	"134"	"43"
+	"227"	"37"
+	"518"   "33"
+	"522"   "34"
+}
+
+set username "huguoqing"
+set password "alvin@123"
+
+array set user_pass {
+	"huguoqing"   "alvin1001"
+	"robot"       "robot@)!("
+}
+
+#set ip_addr "10.100.37.200"
+set ip_addr "10.60.242.200"
+set host_name [lindex $argv 0]
+set host_id ""
+set login_user [lindex $argv 1]
+if {[info exists user_pass($login_user)]} {
+	set login_pass $user_pass($login_user)
+} else {
+	set login_user "robot"
+	set login_pass $user_pass($login_user)
+}
+
+if { "$host_name" == "fm" } {
+	spawn ssh robot@10.52.66.33
+	expect "*password:"
+	send "robot2017\r"
+
+} else {
+	if {[info exists arr($host_name)] } {
+		set host_id $arr($host_name)
+	}
+
+	spawn ssh $username@$ip_addr
+	expect "*Password:"
+	send "$password\r"
+
+	if { "$host_id" != "" } {
+    expect "*Select group:"
+		send "0\r"
+		expect "*Select page:"
+		send "0\r"
+		expect "*Select server:"
+		send "$host_id\r"
+		expect "*Input account:"
+		send "$login_user\r"
+		expect "*password:"
+		send "$login_pass\r"
+	}
+}
+
+interact
